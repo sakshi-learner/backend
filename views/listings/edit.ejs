@@ -2,38 +2,57 @@
 <div class="row mt-3">
     <div class="col-8 offset-2">
     <h3>Edit your listings</h3>
-    <form method="POST" action="/listings/<%= listing._id%>?_method=PUT">
+    <form method="POST" action="/listings/<%= listing._id%>?_method=PUT" novalidate class="needs-validation">
         <div class="mb-3">
             <leble for="title" class="form-leble">Title</leble>
-           <input name="listing[title]" value= "<%= listing.title%>" type="text"/>
+           <input name="listing[title]" value= "<%= listing.title%>" type="text" required/>
+           <div class="valid-feedback">
+            Title Looks good!
+           </div>
         </div>
         
         <div class="mb-3">
             <leble for="description" class="form-leble">Description</leble>
-           <textarea name="listing[description]" value="<%= listing.description%>" type="text" class="form-control"></textarea>
+           <textarea name="listing[description]" value="<%= listing.description%>" type="text" class="form-control" required></textarea>
+           <div class="invalid-feedback">
+             Enter description!
+           </div>
         </div>
 
         <div class="mb-3">
             <leble for="image" class="form-leble">Image</leble>
-           <input name="listing[image]" value="<%= listing.image%>" type="text"class="form-control"/>
+           <input name="listing[image]" value="<%= listing.image%>" type="text"class="form-control" required/>
+           <div class="invalid-feedback">
+            image is required!!
+          </div>
         </div>
       <div class="row">
           <div class="mb-3 col-md-4">
               <leble for="price" class="form-leble">price</leble>
-             <input name="listing[price]" value= "<%= listing.price%>" type="number" class="form-control" />
+             <input name="listing[price]" value= "<%= listing.price%>" type="number" class="form-control" required />
+             <div class="invalid-feedback">
+                price should be valid!!
+              </div>
             </div>
 
             <div class="mb-3 col-md-8">
                 <leble for="Country" class="form-leble">Country</leble>
-                <input name="listing[country]"value= "<%= listing.country%>"  type="text" class="form-control" />
+                <input name="listing[country]"value= "<%= listing.country%>"  type="text" class="form-control" required />
+                <div class="invalid-feedback">
+                    Country name should be vaild
+                  </div>
             </div>
        </div>
         <div class="mb-3">
             <leble for="location" class="form-leble">Location</leble>
-          <input name="listing[location]" value= "<%= listing.location%>" type="text" class="form-control" />
+          <input name="listing[location]" value= "<%= listing.location%>" type="text" class="form-control" required />
+          <div class="invalid-feedback">
+            Location should be vailid
+          </div>
         </div>
         <button class="btn btn-dark add-btn mt-3">Edit</button>
         <br><br>
     </form>
 </div>
 </div>
+<script src="/js/script.js"></script>

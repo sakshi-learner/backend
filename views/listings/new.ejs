@@ -4,15 +4,21 @@
     <h3>Create a New Listings</h3>
     <div class="row">
     <div class="col col-8 offset-2">
-    <form method="POSt" action="/listings">
+    <form method="POSt" action="/listings" novalidate class="needs-validation">
         <div class="mb-3">
           <leble for="title" class="form-leble">Title</leble>
-          <input name="listing[title]" placeholder="enter title" type="text" class="form-control">
+          <input name="listing[title]" placeholder="enter title" type="text" class="form-control" required/>
+          <div class="valid-feedback">
+           Title Looks good!
+          </div>
         </div>
         
         <div class="mb-3">
             <leble for="description" class="form-leble">Description</leble>
-          <textarea name="listing[description]" type="text" placeholder="description" class="form-control"></textarea>
+          <textarea name="listing[description]" type="text" placeholder="description" class="form-control" required></textarea>
+          <div class="invalid-feedback">
+            enter description!!
+           </div>
         </div>
         
         <div class="mb-3">
@@ -23,17 +29,26 @@
         <div class="row">
         <div class="mb-3 col-md-4">
             <leble for="price" class="form-leble">Price</leble>
-           <input name="listing[price]" placeholder="enter price" type="number" class="form-control">
+           <input name="listing[price]" placeholder="enter price" type="number" class="form-control" required>
+           <div class="invalid-feedback">
+            Price should be vailid!
+           </div>
         </div>
         
         <div class="mb-3 col-md-8"> 
             <leble for="country" class="form-leble">Country</leble>
-           <input name="listing[country]" placeholder="enter country" type="text" class="form-control">
-        </div>
+           <input name="listing[country]" placeholder="enter country" type="text" class="form-control" required>
+        
+          <div class="invalid-feedback">
+            Country name should be vailid!
+          </div>
         </div>
         <div class="mb-3">
           <leble for="location" class="form-leble">Location</leble>
-          <input name="listing[location]" placeholder="enter location" type="text" class="form-control">
+          <input name="listing[location]" placeholder="enter location" type="text" class="form-control" required>
+          <div class="invalid-feedback">
+            Location should be vailid!! 
+           </div>
         </div>
         <button class="btn btn-dark add-btn">Add</button>
         <br><br>
