@@ -35,9 +35,7 @@ app.get("/", (req, res)=>{
 
 //index Route
 app.get("/listings", wrapAsync( async(req, res)=>{
-    if(!req.body.listing){
-        throw new ExpressError(400, "send vailid data for listing")
-    }
+   
    const allListing= await Listing.find({});
    res.render("listings/index.ejs", {allListing});
 }));
@@ -59,14 +57,26 @@ app.get("/listings/new", (req, res)=>{
 
  //create route
  app.post("/listings", wrapAsync( async(req, res, next) =>{
+  console.log(req. body);
   if(!req.body.listing){
     throw new ExpressError(400," send vailid data fir listing");
+
   }
   const newListing = new Listing(req.body.listing);
+  //if(!newListing.title){
+  //  throw new ExpressError(400," Title is missing!!");
+  //}
+  //if(!newListing.description){
+  //  throw new ExpressError(400," Description is missing!!");
+  //}
+ // if(!newListing.location){
+ //   throw new ExpressError(400," location is missing!!");
+ // }
    await newListing.save();
    res.redirect("/listings");
   
- }));
+ })
+);
 
 
  //edit route
@@ -112,6 +122,7 @@ app.get("/listings/new", (req, res)=>{
 
 app.all("*", (req,res,next)=>{
     next( new ExpressError(404, "Page not found!"));
+    
 
 });
 
@@ -119,6 +130,7 @@ app.use((err, req, res, next)=>{
 
 let{statusCode= 500, message= "something went wrong!"} = err;
 res.status(statusCode).render("error.ejs", {err});
+console.log(err);
 //res.status(statusCode).send(message);
 
 });
