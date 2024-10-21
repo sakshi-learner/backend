@@ -1,14 +1,34 @@
+if(process.env.NODE_ENV != "production"){
+    require('dotenv').config();
+}
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listing.js");
 const path =  require("path");
 const methodOverride =  require("method-override");
 const ejsMate = require("ejs-mate");
+const {listingSchema, reviewSchema} = require("./schema.js");
 
-const wrapAsync = require("./utils/wrapAsync.js");
+
+//const Review = require("./models/review.js");
+const listings = require("./routes/listing.js");
+const reviews = require("./routes/review.js");
+const user = require("./routes/user.js");
+
+
+const session = require("express-session");
+const MongoStore = require('connect-mongo');
+
 const ExpressError = require("./utils/ExpressError.js");
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const review = require("./models/review.js");
+
+const dbUrl = process.env.ATLASDB_URL;
+
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
 
 main().then(() =>{
     console.log("connected to db");
@@ -17,7 +37,7 @@ main().then(() =>{
 })
 
 async function main(){
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(dbUrl);
 }
 
 
@@ -28,97 +48,57 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
-app.get("/", (req, res)=>{
-    res.send("hi ,i am root");
+const store = MongoStore.create({
+    mongoUrl : dbUrl, 
+    crypto :{
+      secret:process.env.SECRET,
+    },
+    touchAfter:24*3600,
 });
 
-
-//index Route
-app.get("/listings", wrapAsync( async(req, res)=>{
-   
-   const allListing= await Listing.find({});
-   res.render("listings/index.ejs", {allListing});
-}));
-
-
-//New Route
-app.get("/listings/new", (req, res)=>{
-    res.render("listings/new.ejs" );
+store.on("error", () => {
+    console.log("ERROR in MONGO SESSION STORE", err);
 });
 
-
-//show route
- app.get("/listings/:id", wrapAsync( async(req,res)=>{
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/show.ejs",{listing});
- }));
-
-
- //create route
- app.post("/listings", wrapAsync( async(req, res, next) =>{
-  console.log(req. body);
-  if(!req.body.listing){
-    throw new ExpressError(400," send vailid data fir listing");
-
-  }
-  const newListing = new Listing(req.body.listing);
-  //if(!newListing.title){
-  //  throw new ExpressError(400," Title is missing!!");
-  //}
-  //if(!newListing.description){
-  //  throw new ExpressError(400," Description is missing!!");
-  //}
- // if(!newListing.location){
- //   throw new ExpressError(400," location is missing!!");
- // }
-   await newListing.save();
-   res.redirect("/listings");
-  
- })
-);
+//cookie session
+const sessionOptions = {
+   store,
+   secret:process.env.SECRET,
+   resave: false,
+   saveUninitialized: true,
+   cookie :{
+    expires : Date.now() + 7 * 24 * 60 * 60 *1000,
+    maxAge : 7 * 24 * 60 * 60 *1000,
+    httpOnly : true,
+   },
+};
 
 
- //edit route
- app.get("/listings/:id/edit", wrapAsync( async(req,res)=>{
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs",{listing});
- }));
-
- //Update route
-
- app.put("/listings/:id", wrapAsync( async(req,res) =>{
-    if(!req.body.listing){
-        throw new ExpressError(400," send vailid data fir listing");
-      }
-    let {id} = req.params;
-   await Listing.findByIdAndUpdate(id, {...req.body.listing});
-   res.redirect(`/listings/${id}`);
- }));
+app.use(session(sessionOptions));
+app.use(flash());
 
 
- //delete
-  app.delete("/listings/:id",  wrapAsync (async(req,res)=>{
-    let { id } = req.params;
-    let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
-    res.redirect("/listings");
-  }));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
 
-//app.get("/testListing", async(req, res)=>{
-//    let sampleListings= new Listing({
-//        title: "My New villa",
-//       description: "by the form",
-//        price:1000,
-//        location: "jabalpur",
-//       country: "India",
-// });
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-//   await sampleListings.save();
-// console.log("sample was saved");
-// res.send("successfull testing");
-//});
+app.use((req,res, next)=>{
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user;
+    next();
+});
+
+//for listing routes
+app.use("/listings", listings);
+
+ 
+//for review routes
+app.use("/listings/:id/reviews", reviews);
+app.use("/",user);
 
 app.all("*", (req,res,next)=>{
     next( new ExpressError(404, "Page not found!"));
@@ -130,7 +110,7 @@ app.use((err, req, res, next)=>{
 
 let{statusCode= 500, message= "something went wrong!"} = err;
 res.status(statusCode).render("error.ejs", {err});
-console.log(err);
+//console.log(err);
 //res.status(statusCode).send(message);
 
 });

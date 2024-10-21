@@ -2,7 +2,7 @@
 <div class="row mt-3">
     <div class="col-8 offset-2">
     <h3>Edit your listings</h3>
-    <form method="POST" action="/listings/<%= listing._id%>?_method=PUT" novalidate class="needs-validation">
+    <form method="POST" action="/listings/<%= listing._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
         <div class="mb-3">
             <leble for="title" class="form-leble">Title</leble>
            <input name="listing[title]" value= "<%= listing.title%>" type="text" required/>
@@ -18,13 +18,16 @@
              Enter description!
            </div>
         </div>
+          
+        <div class="mb-3">
+         <b> original image</b>
+          <img src="<%= originalImageUrl %>"/>
+        </div>
+
 
         <div class="mb-3">
-            <leble for="image" class="form-leble">Image</leble>
-           <input name="listing[image]" value="<%= listing.image%>" type="text"class="form-control" required/>
-           <div class="invalid-feedback">
-            image is required!!
-          </div>
+            <leble for="image" class="form-leble">Upload New Image</leble>
+            <input name="listing[image]" type="file"class="form-control"/>
         </div>
       <div class="row">
           <div class="mb-3 col-md-4">
@@ -40,8 +43,8 @@
                 <input name="listing[country]"value= "<%= listing.country%>"  type="text" class="form-control" required />
                 <div class="invalid-feedback">
                     Country name should be vaild
-                  </div>
-            </div>
+                  </div>            
+              </div>
        </div>
         <div class="mb-3">
             <leble for="location" class="form-leble">Location</leble>
@@ -50,9 +53,9 @@
             Location should be vailid
           </div>
         </div>
+      </div>
         <button class="btn btn-dark add-btn mt-3">Edit</button>
         <br><br>
     </form>
 </div>
 </div>
-<script src="/js/script.js"></script>
